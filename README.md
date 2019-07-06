@@ -90,8 +90,8 @@ how **plug.kak** works, or add additional steps for `plug` to perform for you.
 
 These are available keywords:
 - [branch, tag, commit][9]
-- [load][10]
-- [path][22]
+- [load-path][10]
+- [subset][22]
 - [noload][11]
 - [do][12]
 - [theme][13]
@@ -113,7 +113,7 @@ uses it's default value, which is `*.kak`, and by specifying a value, you just
 override default one. Here's an example:
 
 ```kak
-plug "lenormf/kakoune-extra" load %{
+plug "lenormf/kakoune-extra" subset %{
     hatch_terminal.kak
     lineindent.kak
 }
@@ -127,7 +127,7 @@ from different place. with `path "path/to/plugin"` option you now able to load
 plugins from location that is different from the `plug_install_dir` path.
 
 ``` kak
-plug "plugin_name" path "~/Development/plugin_dir"
+plug "plugin_name" load-path "~/Development/plugin_dir"
 ```
 
 This is also handy for loading plugins that you do not want to

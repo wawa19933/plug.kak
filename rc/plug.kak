@@ -65,7 +65,7 @@ require-module kak
 
 # kakrc highlighters
 try %[
-    add-highlighter shared/kakrc/code/plug_keywords   regex (^|\h)\b(plug|do|config|load|domain|defer|path|branch|tag|commit)\b(\h+)?((?=")|(?=')|(?=%)|(?=\w)) 0:keyword
+    add-highlighter shared/kakrc/code/plug_keywords   regex (^|\h)\b(plug|do|config|subset|domain|defer|load-path|branch|tag|commit)\b(\h+)?((?=")|(?=')|(?=%)|(?=\w)) 0:keyword
     add-highlighter shared/kakrc/code/plug_attributes regex (^|\h)\b(noload|ensure|theme|(no-)?depth-sort)\b 0:attribute
     add-highlighter shared/kakrc/plug_post_hooks      region -recurse '\{' '\bdo\K\h+%\{' '\}' ref sh
 ] catch %{
@@ -98,7 +98,8 @@ define-command -override -docstring \
 Switches:
     branch (tag, commit) <str>      checkout to <str> before loading plugin
     noload                          do not source plugin files
-    load <subset>                   source only <subset> of plugin files
+    subset <subset>                 source only <subset> of plugin files
+    load-path <path>                path for loading plugin from foreign location
     defer <module> <configurations> load plugin <configurations> only when <module> is loaded
     config <configurations>         plugin <configurations>" \
 plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} } %{ try %{
@@ -129,11 +130,11 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
                     checkout="$1" ;;
                 (noload)
                     noload=1 ;;
-                (load)
+                (subset)
                     shift
-                    load=1
+                    subset=1
                     load_files="$1" ;;
-                (path)
+                (load-path)
                     shift
                     path_to_plugin="$1"
                     path_to_plugin=$(printf "%s\n" "${path_to_plugin}" | sed "s:^\s*~/:${HOME}/:") ;;
@@ -184,7 +185,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
         [ -n "${hooks}" ] && printf "%s\n" "set-option -add global plug_post_hooks ${hooks}"
         [ -n "${domains}" ] && printf "%s\n" "set-option -add global plug_domains ${domains}"
 
-        if [ -n "${noload}" ] && [ -n "${load}" ]; then
+        if [ -n "${noload}" ] && [ -n "${subset}" ]; then
             printf "%s\n" "echo -debug %{Warning: plug.kak: ${plugin_name}: 'load' has higer priority than 'noload'}"
             noload=
         fi
