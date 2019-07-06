@@ -108,6 +108,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
         plugin_name="${plugin##*/}"
         plugin_opt_name=$(printf "%s\n" "${plugin_name}" | sed 's/[^a-zA-Z0-9_]/_/g')
         load_files='*.kak'
+        path_to_plugin="${kak_opt_plug_install_dir}/${plugin_name}"
 
         if [ $(expr "${kak_opt_plug_loaded_plugins}" : ".*${plugin}.*") -ne 0 ]; then
             printf "%s\n" "echo -markup %{{Information}${plugin_name} already loaded}"
@@ -132,12 +133,16 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
                     shift
                     load=1
                     load_files="$1" ;;
+                (path)
+                    shift
+                    path_to_plugin="$1"
+                    path_to_plugin=$(printf "%s\n" "${path_to_plugin}" | sed "s:^\s*~/:${HOME}/:") ;;
                 (defer)
                     shift
                     module="$1"
                     shift
                     deferred_conf=$(printf "%s\n" "$1" | sed "s/@/@@/g")
-                    deferred_conf=$(printf "%s\n%s\n" "hook global ModuleLoaded ${module} %@ ${deferred_conf} @")
+                    deferred_conf=$(printf "%s\n" "hook global ModuleLoaded ${module} %@ ${deferred_conf} @")
                     configurations="${configurations}
                     ${deferred_conf}" ;;
                 (do)
@@ -176,23 +181,19 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
             printf "%s\n" "declare-option -hidden str plug_${plugin_opt_name}_conf"
         fi
 
-        if [ -n "${hooks}" ]; then
-            printf "%s\n" "set-option -add global plug_post_hooks ${hooks}"
-        fi
-
-        if [ -n "${domains}" ]; then
-            printf "%s\n" "set-option -add global plug_domains ${domains}"
-        fi
+        [ -n "${hooks}" ] && printf "%s\n" "set-option -add global plug_post_hooks ${hooks}"
+        [ -n "${domains}" ] && printf "%s\n" "set-option -add global plug_domains ${domains}"
 
         if [ -n "${noload}" ] && [ -n "${load}" ]; then
             printf "%s\n" "echo -debug %{Warning: plug.kak: ${plugin_name}: 'load' has higer priority than 'noload'}"
             noload=
         fi
 
-        if [ -d "${kak_opt_plug_install_dir}/${plugin##*/}" ]; then
+
+        if [ -d "${path_to_plugin}" ]; then
             if [ -n "${checkout}" ]; then
                 (
-                    cd "${kak_opt_plug_install_dir}/${plugin##*/}"
+                    cd "${path_to_plugin}"
                     [ -z "${GIT_TERMINAL_PROMPT}" ] && export GIT_TERMINAL_PROMPT=0
                     if [ "${branch_type}" = "branch" ]; then
                         current_branch=$(git branch | awk '/^\*/ { print $2 }')
@@ -211,7 +212,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
                     file="${file%"${file##*[![:space:]]}"}"
                     if [ "${depth_sort}" = "true" ]; then
                         # performance hungry place.
-                        find -L ${kak_opt_plug_install_dir}/${plugin_name} -path '*/.git' -prune -o -type f -name "${file}" -print | perl -e '
+                        find -L "${path_to_plugin}" -path '*/.git' -prune -o -type f -name "${file}" -print | perl -e '
                             print map  { $_->[0] }
                                   sort { $a->[1] <=> $b->[1] }
                                   map  { [$_, ($_ =~ s/^/source "/ && $_ =~ s/$/"/ && $_ =~ s/\//\//g)] }
@@ -219,7 +220,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
                     else
                         # source files in order that `find' is returning
                         # may or may not break some plugins
-                        find -L ${kak_opt_plug_install_dir}/${plugin_name} -path '*/.git' -prune -o -type f -name "${file}" -exec printf 'source "%s"\n' {} \;
+                        find -L "${path_to_plugin}" -path '*/.git' -prune -o -type f -name "${file}" -exec printf 'source "%s"\n' {} \;
                     fi
                 done
             } fi
