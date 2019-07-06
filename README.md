@@ -91,6 +91,7 @@ how **plug.kak** works, or add additional steps for `plug` to perform for you.
 These are available keywords:
 - [branch, tag, commit][9]
 - [load][10]
+- [path][22]
 - [noload][11]
 - [do][12]
 - [theme][13]
@@ -119,6 +120,20 @@ plug "lenormf/kakoune-extra" load %{
 ```
 
 Filenames must be specified one per line.
+
+#### Loading plugin from different path
+When developing a plugin, it's nice to have ability to load development version
+from different place. with `path "path/to/plugin"` option you now able to load
+plugins from location that is different from the `plug_install_dir` path.
+
+``` kak
+plug "plugin_name" path "~/Development/plugin_dir"
+```
+
+This is also handy for loading plugins that you do not want to
+upload. Unfortunately all plug-related commands like `plug-update` or
+`plug-clean` will not work for plugins that aren't installed to
+`plug_install_dir`.
 
 #### Skipping loading of a plugin
 Sometimes plugin should be installed, but not loaded until certain event.  In
@@ -386,7 +401,7 @@ And last but not least: `plug`. Load plugin from plugin installation directory b
 [12]: #Automatically-do-certain-tasks-on-install-or-update
 [13]: #Installing-color-schemes
 [14]: #Handling-user-configurations
-[15]: #Ensuring-that-plugin-is-installed
+[15]: #Ensure-that-plugins-are-installed
 
 [16]: #Plugin-installation-directory
 [17]: #Maximum-downloads
@@ -394,3 +409,4 @@ And last but not least: `plug`. Load plugin from plugin installation directory b
 [19]: #Depth-sorting-sourced-files
 [20]: #Specifying-git-domain-on-per-plugin-basis
 [21]: #Deferring-plugin-configuration
+[22]: #Loading-plugin-from-different-path
