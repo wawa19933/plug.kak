@@ -65,8 +65,8 @@ require-module kak
 
 # kakrc highlighters
 try %[
-    add-highlighter shared/kakrc/code/plug_keywords   regex (^|\h)\b(plug|do|config|load|domain|defer)\b(\h+)?((?=")|(?=')|(?=%)|(?=\w)) 0:keyword
-    add-highlighter shared/kakrc/code/plug_attributes regex (^|\h)\b(noload|ensure|branch|tag|commit|theme|(no-)?depth-sort)\b 0:attribute
+    add-highlighter shared/kakrc/code/plug_keywords   regex (^|\h)\b(plug|do|config|load|domain|defer|path|branch|tag|commit)\b(\h+)?((?=")|(?=')|(?=%)|(?=\w)) 0:keyword
+    add-highlighter shared/kakrc/code/plug_attributes regex (^|\h)\b(noload|ensure|theme|(no-)?depth-sort)\b 0:attribute
     add-highlighter shared/kakrc/plug_post_hooks      region -recurse '\{' '\bdo\K\h+%\{' '\}' ref sh
 ] catch %{
     echo -debug "plug.kak: Can't declare highlighters for 'kak' filetype."
