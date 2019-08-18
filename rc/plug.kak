@@ -61,16 +61,21 @@ declare-option -hidden -docstring \
 str-list plug_domains
 
 # since we want to add highlighters to kak filetype we need to require kak module
-require-module kak
-
-# kakrc highlighters
+# using `try' here since kakrc module may not be available in rare cases 
 try %[
-    add-highlighter shared/kakrc/code/plug_keywords   regex (^|\h)\b(plug|do|config|subset|domain|defer|load-path|branch|tag|commit)\b(\h+)?((?=")|(?=')|(?=%)|(?=\w)) 0:keyword
-    add-highlighter shared/kakrc/code/plug_attributes regex (^|\h)\b(noload|ensure|theme|(no-)?depth-sort)\b 0:attribute
-    add-highlighter shared/kakrc/plug_post_hooks      region -recurse '\{' '\bdo\K\h+%\{' '\}' ref sh
+    require-module kak
+
+    try %[
+        add-highlighter shared/kakrc/code/plug_keywords   regex (^|\h)\b(plug|do|config|subset|domain|defer|load-path|branch|tag|commit)\b(\h+)?((?=")|(?=')|(?=%)|(?=\w)) 0:keyword
+        add-highlighter shared/kakrc/code/plug_attributes regex (^|\h)\b(noload|ensure|theme|(no-)?depth-sort)\b 0:attribute
+        add-highlighter shared/kakrc/plug_post_hooks      region -recurse '\{' '\bdo\K\h+%\{' '\}' ref sh
+    ] catch %{
+        echo -debug "plug.kak: Can't declare highlighters for 'kak' filetype."
+        echo -debug "          Detailed error: %val{error}"
+    }
 ] catch %{
-    echo -debug "plug.kak: Can't declare highlighters for 'kak' filetype."
-    echo -debug "          Detailed error: %val{error}"
+    echo -debug "Can't require 'kak' module to declare highlighters for plug.kak."
+    echo -debug "Check if kakrc.kak is available in your autoload."
 }
 
 # *plug* highlighters
