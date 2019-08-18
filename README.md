@@ -33,13 +33,20 @@ command:
 git clone https://github.com/andreyorst/plug.kak.git ~/.config/kak/plugins/plug.kak
 ```
 
-Now, when **plug.kak** is installed, we need to tell Kakoune about it. You can
-either symlink `plug.kak` file to your `autoload` directory, or use Kakoune `source`
-command. I've added this `source` command to my `kakrc`:
+Now, when **plug.kak** is installed, we need to tell Kakoune about it. To do so
+use Kakoune's `source` command:
 
 ```kak
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 ```
+
+It's not recommended to use `autoload` directory with **plug.kak**, due to
+[loading order](https://github.com/mawww/kakoune/pull/3021) which can be
+different on different systems, depending on `find`. It is possible that
+**plug.kak** would be loaded before `kakrc.kak` and this will result in errors.
+Therefore using `source` from `kakrc` is more reliable approach. You don't need
+`autoload` if you're using **plug.kak** anyways, because it was created in order
+to avoid using `autoload`.
 
 As I've already mentioned **plug.kak** can work from any directory, but if you
 installed it to your plugin installation directory, **plug.kak** will be able to
