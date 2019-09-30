@@ -28,6 +28,10 @@ declare-option -docstring \
 bool plug_depth_sort false
 
 declare-option -docstring \
+"Sort sourced files by depth" \
+bool plug_profile false
+
+declare-option -docstring \
 "Maximum amount of simultaneously active downloads when installing or updating all plugins
     Default value: 10
 " \
@@ -112,6 +116,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
         plugin="${1%%.git}"
         shift
         plugin_name="${plugin##*/}"
+        [ "${kak_opt_plug_profile}" = "true" ] && start=$(date +%s%N)
         plugin_opt_name=$(printf "%s\n" "${plugin_name}" | sed 's/[^a-zA-Z0-9_]/_/g')
         load_files='*.kak'
         path_to_plugin="${kak_opt_plug_install_dir}/${plugin_name}"
@@ -130,7 +135,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
         while [ $# -gt 0 ]; do
             case $1 in
                 (branch|tag|commit)
-                    branch_type=$1
+                    checkout_type=$1
                     shift
                     checkout="$1" ;;
                 (noload)
@@ -141,13 +146,12 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
                     load_files="$1" ;;
                 (load-path)
                     shift
-                    path_to_plugin="$1"
-                    path_to_plugin=$(printf "%s\n" "${path_to_plugin}" | sed "s:^\s*~/:${HOME}/:") ;;
+                    path_to_plugin=$(printf "%s\n" "$1" | sed "s:^\s*~/:${HOME}/:") ;;
                 (defer)
                     shift
                     module="$1"
                     shift
-                    deferred_conf=$(printf "%s\n" "$1" | sed "s/@/@@/g")
+                    [ -z "${1##*@*}" ] && deferred_conf=$(printf "%s\n" "$1" | sed "s/@/@@/g") || deferred_conf="$1"
                     deferred_conf=$(printf "%s\n" "hook global ModuleLoaded ${module} %@ ${deferred_conf} @")
                     configurations="${configurations}
                     ${deferred_conf}" ;;
@@ -181,7 +185,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
         # their configurations are known to `plug.kak', so it can load those after installation
         # automatically.
         if [ -n "${configurations}" ]; then
-            configurations=$(printf "%s\n" "${configurations}" | sed "s/&/&&/g")
+            [ -z "${configurations##*&*}" ] && configurations=$(printf "%s\n" "${configurations}" | sed "s/&/&&/g")
             printf "%s\n" "declare-option -hidden str plug_${plugin_opt_name}_conf %&${configurations}&"
         else
             printf "%s\n" "declare-option -hidden str plug_${plugin_opt_name}_conf"
@@ -201,7 +205,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
                 (
                     cd "${path_to_plugin}"
                     [ -z "${GIT_TERMINAL_PROMPT}" ] && export GIT_TERMINAL_PROMPT=0
-                    if [ "${branch_type}" = "branch" ]; then
+                    if [ "${checkout_type}" = "branch" ]; then
                         current_branch=$(git branch | awk '/^\*/ { print $2 }')
                         [ "${current_branch}" != "${checkout}" ] && git fetch >/dev/null 2>&1
                     fi
@@ -237,6 +241,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
                 printf "%s\n" "evaluate-commands plug-install ${plugin}"
             fi
         fi
+        [ "${kak_opt_plug_profile}" = "true" ] && printf "%s\n" "echo -debug %{'$plugin' loaded in $(echo "($(date +%s%N)-${start})/1000000" | bc) ms}"
     }
 } catch %{
     echo -debug "plug.kak: Error occured while loading '%arg{1}' plugin:"
