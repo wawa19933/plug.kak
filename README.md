@@ -104,6 +104,7 @@ These are available keywords:
 - [theme][13]
 - [config][14]
 - [defer][21]
+- [demand][23]
 - [depth-sort][19] and [no-depth-sort][19]
 - [domain][20]
 - [ensure][15]
@@ -306,6 +307,30 @@ only when `fzf` module is loaded.
 Since we've touched the configuration of **plug.kak** itself, let's discuss this
 topic.
 
+### Automatically require deferred module
+The `demand` keyword works only in pair with `defer` keyword. What it
+essentially does is calling `require-module module` at the end of `config` block
+(or if there's no `config` specified it will be the only configuration) with
+`module` specified by `defer` keyword. So this:
+
+```kak
+plug "andreyorst/fzf.kak" defer fzf %{
+    set-option global fzf_project_use_tilda true
+} demand
+```
+
+is a shorthand for this:
+
+``` kak
+plug "andreyorst/fzf.kak" defer fzf %{
+    set-option global fzf_project_use_tilda true
+} config %{
+    require-module fzf
+}
+```
+
+`demand` can be placed anywhere after plugin name.
+
 ## **plug.kak** Configuration
 You can change some bits of **plug.kak** behavior:
 - Change [plugin installation directory][16]
@@ -417,3 +442,4 @@ And last but not least: `plug`. Load plugin from plugin installation directory b
 [20]: #Specifying-git-domain-on-per-plugin-basis
 [21]: #Deferring-plugin-configuration
 [22]: #Loading-plugin-from-different-path
+[23]:
