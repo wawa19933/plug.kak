@@ -496,7 +496,8 @@ plug-list -params ..1 %{ evaluate-commands -try-client %opt{toolsclient} %sh{
                    map buffer normal 'U' ':<space>plug-fifo-operate update<ret>'
                    map buffer normal 'I' ':<space>plug-fifo-operate install<ret>'
                    map buffer normal 'L' ':<space>plug-fifo-operate log<ret>'
-                   map buffer normal 'D' ':<space>plug-fifo-operate clean<ret>'"
+                   map buffer normal 'D' ':<space>plug-fifo-operate clean<ret>'
+                   map buffer normal 'R' ':<space>plug-fifo-operate hooks<ret>'"
 
     # get those plugins which were loaded by plug.kak
     eval "set -- ${kak_opt_plug_plugins}"
@@ -581,9 +582,11 @@ plug-fifo-operate -params 1 %{ evaluate-commands -save-regs t %{
                 printf "%s\n" "echo -markup %{{Information}'${plugin}' already installed}"
             fi ;;
         (clean)
-                printf "%s\n" "plug-clean ${plugin}" ;;
+            printf "%s\n" "plug-clean ${plugin}" ;;
         (log)
             printf "%s\n" "plug-display-log ${plugin}" ;;
+        (hooks)
+            printf "%s\n" "plug-eval-hooks ${plugin##*/}" ;;
         (*)
             ;;
         esac
@@ -607,11 +610,12 @@ plug-display-log -params 1 %{ evaluate-commands %sh{
 define-command -override \
 -docstring "displays help message" \
 plug-show-help %{
-    info -title "plug.kak Help" "h,j,k,l - Move
-<ret> - Update or install plugin
-I - Install plugin
-U - Update plugin
-D - clean plugin
-L - show log, if any
-H - Show this message"
+    info -title "plug.kak Help" "h,j,k,l: Move
+<ret>:   Update or Install plugin
+I:       Install plugin
+U:       Update plugin
+D:       clean (Delete) plugin
+L:       show Log, if any
+R:       Run post-update hooks manually
+H        show Help message"
 }
