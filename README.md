@@ -442,4 +442,4 @@ And last but not least: `plug`. Load plugin from plugin installation directory b
 [20]: #Specifying-git-domain-on-per-plugin-basis
 [21]: #Deferring-plugin-configuration
 [22]: #Loading-plugin-from-different-path
-[23]:
+[23]: #automatically-require-deferred-module
