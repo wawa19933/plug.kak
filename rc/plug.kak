@@ -66,18 +66,21 @@ str-list plug_domains
 
 # since we want to add highlighters to kak filetype we need to require kak module
 # using `try' here since kakrc module may not be available in rare cases 
-try %[
+try %@
     require-module kak
 
-    try %[
-        add-highlighter shared/kakrc/code/plug_keywords   regex (^|\h)\b(plug|do|config|subset|domain|defer|load-path|branch|tag|commit)\b(\h+)?((?=")|(?=')|(?=%)|(?=\w)) 0:keyword
-        add-highlighter shared/kakrc/code/plug_attributes regex (^|\h)\b(noload|ensure|theme|(no-)?depth-sort)\b 0:attribute
-        add-highlighter shared/kakrc/plug_post_hooks      region -recurse '\{' '\bdo\K\h+%\{' '\}' ref sh
-    ] catch %{
+    try %$
+        add-highlighter shared/kakrc/code/plug_keywords   regex \b(plug|do|config|subset|domain|defer|demand|load-path|branch|tag|commit)\b 0:keyword
+        add-highlighter shared/kakrc/code/plug_attributes regex \b(noload|ensure|theme|(no-)?depth-sort)\b 0:attribute
+        add-highlighter shared/kakrc/plug_post_hooks1     region -recurse '\{' '\bdo\K\h+%\{' '\}' ref sh
+        add-highlighter shared/kakrc/plug_post_hooks2     region -recurse '\[' '\bdo\K\h+%\[' '\]' ref sh
+        add-highlighter shared/kakrc/plug_post_hooks3     region -recurse '\(' '\bdo\K\h+%\(' '\)' ref sh
+        add-highlighter shared/kakrc/plug_post_hooks4     region -recurse '<'  '\bdo\K\h+%<'  '>'  ref sh
+    $ catch %$
         echo -debug "plug.kak: Can't declare highlighters for 'kak' filetype."
         echo -debug "          Detailed error: %val{error}"
-    }
-] catch %{
+    $
+@ catch %{
     echo -debug "Can't require 'kak' module to declare highlighters for plug.kak."
     echo -debug "Check if kakrc.kak is available in your autoload."
 }
@@ -155,6 +158,8 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
                     deferred_conf=$(printf "%s\n" "hook global ModuleLoaded ${module} %@ ${deferred_conf} @")
                     configurations="${configurations}
                     ${deferred_conf}" ;;
+                (demand)
+                    demand=1 ;;
                 (do)
                     shift
                     hooks="${hooks} %{${plugin_name}} %{$1}" ;;
@@ -181,6 +186,11 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
             shift
         done
 
+        if [ -n "${demand}" ] && [ -n "${module}" ]; then
+            configurations="${configurations}
+                            require-module ${module}"
+        fi
+
         # bake configuration options. We need this in case plugins are not installed, but
         # their configurations are known to `plug.kak', so it can load those after installation
         # automatically.
@@ -198,7 +208,6 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
             printf "%s\n" "echo -debug %{Warning: plug.kak: ${plugin_name}: 'load' has higer priority than 'noload'}"
             noload=
         fi
-
 
         if [ -d "${path_to_plugin}" ]; then
             if [ -n "${checkout}" ]; then
