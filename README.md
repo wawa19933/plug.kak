@@ -356,9 +356,11 @@ This means that **plug.kak** was installed in the plugin installation directory.
 
 ### Plugin installation directory
 
-You can specify where to install plugins, in case you don't like default
-`~/.config/kak/plugins/` path. You can do so by changing `plug_install_dir` option:
-(note: if you want to use environment variables in the path, consider using shell expansion like in this example)
+By default **plug.kak** will install plugins to the same directory where it was
+installed.  You can specify where to install plugins, in case you don't like
+default path. You can do so by changing `plug_install_dir` option: (note: if you
+want to use environment variables in the path, consider using shell expansion
+like in this example)
 
 ```kak
 plug "andreyorst/plug.kak" noload config %{

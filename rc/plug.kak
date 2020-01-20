@@ -14,8 +14,8 @@
 declare-option -docstring \
 "Path where plugins should be installed.
 
-    Default value: '%val{config}/plugins'" \
-str plug_install_dir "%val{config}/plugins"
+    Defaults to the plug.kak installation directory" \
+str plug_install_dir %sh{ echo "${kak_source%%/rc*}/../" }
 
 declare-option -docstring \
 "Default domain to access git repositories. Can be changed to any preferred domain, like gitlab, bitbucket, gitea, etc.
@@ -65,7 +65,7 @@ declare-option -hidden -docstring \
 str-list plug_domains
 
 # since we want to add highlighters to kak filetype we need to require kak module
-# using `try' here since kakrc module may not be available in rare cases 
+# using `try' here since kakrc module may not be available in rare cases
 try %@
     require-module kak
 
