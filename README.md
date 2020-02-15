@@ -429,19 +429,19 @@ And last but not least: `plug`. Load plugin from plugin installation directory b
 [7]: https://github.com/andreyorst/plug.kak/tree/dev
 [8]: https://github.com/andreyorst/plug.kak
 
-[9]: #Branch-Tag-or-Commit
-[10]: #Loading-subset-of-files-from-plugin-repository
-[11]: #Skipping-loading-of-a-plugin
-[12]: #Automatically-do-certain-tasks-on-install-or-update
-[13]: #Installing-color-schemes
-[14]: #Handling-user-configurations
-[15]: #Ensure-that-plugins-are-installed
+[9]: #branch-tag-or-commit
+[10]: #loading-subset-of-files-from-plugin-repository
+[11]: #skipping-loading-of-a-plugin
+[12]: #automatically-do-certain-tasks-on-install-or-update
+[13]: #installing-color-schemes
+[14]: #handling-user-configurations
+[15]: #ensure-that-plugins-are-installed
 
-[16]: #Plugin-installation-directory
-[17]: #Maximum-downloads
-[18]: #Default-git-domain
-[19]: #Depth-sorting-sourced-files
-[20]: #Specifying-git-domain-on-per-plugin-basis
-[21]: #Deferring-plugin-configuration
-[22]: #Loading-plugin-from-different-path
+[16]: #plugin-installation-directory
+[17]: #maximum-downloads
+[18]: #default-git-domain
+[19]: #depth-sorting-sourced-files
+[20]: #specifying-git-domain-on-per-plugin-basis
+[21]: #deferring-plugin-configuration
+[22]: #loading-plugin-from-different-path
 [23]: #automatically-require-deferred-module
