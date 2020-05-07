@@ -1,14 +1,14 @@
-# ╭─────────────╥──────────╥─────────────╮
-# │ Author:     ║ File:    ║ Branch:     │
-# │ Andrey Orst ║ plug.kak ║ master      │
-# ╞═════════════╩══════════╩═════════════╡
-# │ plug.kak is a plugin manager for     │
-# │ Kakoune. It can install plugins      │
-# │ keep them updated and uninstall      │
-# ╞══════════════════════════════════════╡
-# │ GitHub repo:                         │
-# │ GitHub.com/andreyorst/plug.kak       │
-# ╰──────────────────────────────────────╯
+# ╭─────────────╥────────────────────╮
+# │ Author:     ║ File:              │
+# │ Andrey Orst ║ plug.kak           │
+# ╞═════════════╩════════════════════╡
+# │ plug.kak is a plugin manager for │
+# │ Kakoune. It can install plugins  │
+# │ keep them updated and uninstall  │
+# ╞══════════════════════════════════╡
+# │ GitHub repo:                     │
+# │ GitHub.com/andreyorst/plug.kak   │
+# ╰──────────────────────────────────╯
 
 # Public options
 declare-option -docstring \
@@ -116,10 +116,10 @@ Switches:
     config <configurations>         plugin <configurations>" \
 plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} } %{ try %{
     evaluate-commands %sh{
+        [ "${kak_opt_plug_profile}" = "true" ] && start=$(date +%s%N)
         plugin="${1%%.git}"
         shift
         plugin_name="${plugin##*/}"
-        [ "${kak_opt_plug_profile}" = "true" ] && start=$(date +%s%N)
         plugin_opt_name=$(printf "%s\n" "${plugin_name}" | sed 's/[^a-zA-Z0-9_]/_/g')
         load_files='*.kak'
         path_to_plugin="${kak_opt_plug_install_dir}/${plugin_name}"
@@ -129,10 +129,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
             exit
         fi
 
-        if [ $(expr "${kak_opt_plug_plugins}" : ".*${plugin}.*") -eq 0 ]; then
-            printf "%s\n" "set-option -add global plug_plugins %{${plugin} }"
-        fi
-
+        [ $(expr "${kak_opt_plug_plugins}" : ".*${plugin}.*") -eq 0 ] && printf "%s\n" "set-option -add global plug_plugins %{${plugin} }"
         [ "${kak_opt_plug_depth_sort}" = "true" ] && depth_sort="true" || depth_sort="false"
 
         while [ $# -gt 0 ]; do
@@ -194,14 +191,9 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
         # bake configuration options. We need this in case plugins are not installed, but
         # their configurations are known to `plug.kak', so it can load those after installation
         # automatically.
-        if [ -n "${configurations}" ]; then
-            [ -z "${configurations##*&*}" ] && configurations=$(printf "%s\n" "${configurations}" | sed "s/&/&&/g")
-            printf "%s\n" "declare-option -hidden str plug_${plugin_opt_name}_conf %&${configurations}&"
-        else
-            printf "%s\n" "declare-option -hidden str plug_${plugin_opt_name}_conf"
-        fi
-
-        [ -n "${hooks}" ] && printf "%s\n" "set-option -add global plug_post_hooks ${hooks}"
+        [ -z "${configurations##*&*}" ] && configurations=$(printf "%s\n" "${configurations}" | sed "s/&/&&/g")
+        printf "%s\n" "declare-option -hidden str plug_${plugin_opt_name}_conf %&${configurations}&"
+        [ -n "${hooks}" ] &&   printf "%s\n" "set-option -add global plug_post_hooks ${hooks}"
         [ -n "${domains}" ] && printf "%s\n" "set-option -add global plug_domains ${domains}"
 
         if [ -n "${noload}" ] && [ -n "${subset}" ]; then
@@ -238,7 +230,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
                                            <>;'
                     else
                         # source files in order that `find' is returning
-                        # may or may not break some plugins
+                        # may break some plugins
                         find -L "${path_to_plugin}" -path '*/.git' -prune -o -type f -name "${file}" -exec printf 'source "%s"\n' {} \;
                     fi
                 done
