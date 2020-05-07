@@ -217,7 +217,7 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
                 IFS='
 '
                 set -f # set noglob
-                for file in "${load_files}"; do
+                for file in ${load_files}; do
                     # trim leading and trailing whitespaces. Looks ugly, but faster than `sed'
                     file="${file#"${file%%[![:space:]]*}"}"
                     file="${file%"${file##*[![:space:]]}"}"
@@ -556,7 +556,7 @@ plug-list -params ..1 %{ evaluate-commands -try-client %opt{toolsclient} %sh{
 
 }}
 
-define-command -override \
+define-command -hidden -override \
 -docstring "operate on *plug* buffer contents based on current cursor position" \
 plug-fifo-operate -params 1 %{ evaluate-commands -save-regs t %{
     execute-keys -save-regs '' "<a-h><a-l>"
