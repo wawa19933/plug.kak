@@ -153,7 +153,9 @@ plug -params 1.. -shell-script-candidates %{ ls -1 ${kak_opt_plug_install_dir} }
                     shift
                     [ -z "${1##*@*}" ] && deferred_conf=$(printf "%s\n" "$1" | sed "s/@/@@/g") || deferred_conf="$1"
                     deferred_conf=$(printf "%s\n" "hook global ModuleLoaded ${module} %@ ${deferred_conf} @")
-                    configurations="${configurations}
+                    require_module=$(printf "%s\n" "hook global KakBegin .* %{ require-module ${module} }")
+                    configurations="${require_module}
+                    ${configurations}
                     ${deferred_conf}" ;;
                 (demand)
                     demand=1 ;;
